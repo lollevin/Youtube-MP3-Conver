@@ -1,0 +1,132 @@
+/* Full-page styling */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    margin: 0;
+}
+
+/* Container */
+.container {
+    max-width: 500px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+/* Title */
+.title {
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+}
+
+/* Input */
+input {
+    padding: 12px;
+    width: 90%;
+    border-radius: 10px;
+    border: none;
+    font-size: 18px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    margin-bottom: 15px;
+}
+
+input::placeholder {
+    color: white;
+    opacity: 0.6;
+}
+
+/* Download button */
+button {
+    padding: 14px;
+    width: 100%;
+    background: linear-gradient(to right, #ff7e5f, #e31587);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Shine effect when hovering */
+button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+    transform: skewX(-45deg);
+    transition: all 0.5s ease-in-out;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+/* Click effect */
+button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+}
+
+/* Status messages */
+#status {
+    margin-top: 12px;
+    font-size: 16px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Loading animation */
+.loader {
+    display: none;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 6px solid #ffffff;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Progress Bar */
+#progressBarContainer {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 10px;
+    margin-top: 15px;
+    overflow: hidden;
+    display: none;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    transition: width 0.2s ease-in-out;
+}
