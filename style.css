@@ -5,17 +5,24 @@ body {
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 🧊 Glassmorphism Card */
+/* 🧊 Glassmorphism Card - Fully Centered */
 .converter-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
+  padding: 24px;
+  width: 100%;
+  max-width: 450px;
 }
 
+/* 🏆 Hover Effect */
 .converter-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
@@ -73,6 +80,23 @@ body {
 .download-btn:hover {
   background-color: #10B981;
   color: white;
+}
+
+/* 🌈 Premium Animated Progress Bar */
+#progressBarContainer {
+  width: 100%;
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #4F46E5, #6366F1);
+  transition: width 0.5s ease-in-out;
 }
 
 /* 🔄 Loading Spinner */
