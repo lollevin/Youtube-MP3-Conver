@@ -1,83 +1,82 @@
-// Function to extract YouTube Video ID
-function extractVideoId(url) {
-    try {
-        const urlObj = new URL(url);
-        if (urlObj.hostname.includes("youtube.com")) {
-            return urlObj.searchParams.get("v");
-        } else if (urlObj.hostname.includes("youtu.be")) {
-            return urlObj.pathname.substring(1);
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("downloadBtn").addEventListener("click", async function () {
+        console.log("Download button clicked!");
+
+        let videoInput = document.getElementById("videoUrl");
+        let statusDiv = document.getElementById("status");
+        let progressBar = document.getElementById("progressBar");
+
+        if (!videoInput) {
+            console.error("Error: Input field not found!");
+            return;
         }
-    } catch {
-        return null;
-    }
-}
 
-document.getElementById("downloadBtn").addEventListener("click", async function () {
-    const videoUrl = document.getElementById("videoId").value.trim();
-    const status = document.getElementById("status");
-    const loader = document.getElementById("loader");
-    const progressBarContainer = document.getElementById("progressBarContainer");
-    const progressBar = document.getElementById("progressBar");
-
-    if (!videoUrl) {
-        status.textContent = "❌ Please enter a valid YouTube URL.";
-        return;
-    }
-
-    loader.style.display = "block";
-    progressBarContainer.style.display = "block";
-    status.textContent = "🔄 Connecting to YouTube...";
-
-    const videoId = extractVideoId(videoUrl);
-    if (!videoId) {
-        status.textContent = "❌ Invalid YouTube URL.";
-        loader.style.display = "none";
-        progressBarContainer.style.display = "none";
-        return;
-    }
-
-    const apiUrl = `https://youtube-mp3-audio-video-downloader.p.rapidapi.com/download-mp3/${videoId}?quality=high`;
-    const startTime = Date.now();
-
-    let width = 0;
-    const interval = setInterval(() => {
-        if (width < 90) {
-            width += 0.5;
-            progressBar.style.width = width + "%";
+        let videoUrl = videoInput.value;
+        if (!videoUrl.includes("youtube.com") && !videoUrl.includes("youtu.be")) {
+            statusDiv.innerText = "Invalid YouTube URL!";
+            return;
         }
-    }, 100);
 
-    try {
-        const response = await fetch(apiUrl, {
-            method: "GET",
-            headers: {
-                "x-rapidapi-host": "youtube-mp3-audio-video-downloader.p.rapidapi.com",
-                "x-rapidapi-key": "af04bdf1d7mshc9dda69ae5365f2p146731jsn2458b96f620c"
+        let videoId = extractVideoId(videoUrl);
+        if (!videoId) {
+            statusDiv.innerText = "Could not extract video ID.";
+            return;
+        }
+
+        try {
+            // Step 1: Show progress before fetching the title
+            statusDiv.innerText = "Fetching video title...";
+            progressBar.style.width = "20%"; 
+
+            let response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+            let data = await response.json();
+            let videoTitle = data.title || "DownloadedAudio";
+
+            console.log("Video title fetched:", videoTitle);
+            statusDiv.innerText = "Preparing MP3...";
+            progressBar.style.width = "50%";
+
+            // Step 2: Call the MP3 conversion API
+            let apiKey = "af04bdf1d7mshc9dda69ae5365f2p146731jsn2458b96f620c"; // Replace with your actual API key
+            let mp3Response = await fetch(`https://youtube-mp3-audio-video-downloader.p.rapidapi.com/download-mp3/${videoId}`, {
+                method: "GET",
+                headers: {
+                    "X-RapidAPI-Key": apiKey,
+                    "X-RapidAPI-Host": "youtube-mp3-audio-video-downloader.p.rapidapi.com"
+                }
+            });
+
+            if (!mp3Response.ok) {
+                console.error("API Error:", await mp3Response.text());
+                statusDiv.innerText = "Error: MP3 file not found!";
+                progressBar.style.width = "0%";
+                return;
             }
-        });
 
-        clearInterval(interval);
-        loader.style.display = "none";
-        progressBar.style.width = "100%";
+            statusDiv.innerText = "Downloading MP3...";
+            progressBar.style.width = "80%";
 
-        if (!response.ok) {
-            throw new Error("❌ MP3 conversion failed. Please try again later.");
+            // Step 3: Convert response to Blob and trigger real download
+            let blob = await mp3Response.blob();
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = `${videoTitle}.mp3`; // Uses video title as filename
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            statusDiv.innerText = `Download complete: ${videoTitle}.mp3`;
+            progressBar.style.width = "100%";
+        } catch (error) {
+            statusDiv.innerText = "Error downloading MP3 file.";
+            progressBar.style.width = "0%";
+            console.error("Download error:", error);
         }
-
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${videoId}.mp3`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        status.textContent = "✅ MP3 ready! Downloading now...";
-    } catch (error) {
-        clearInterval(interval);
-        loader.style.display = "none";
-        progressBarContainer.style.display = "none";
-        status.textContent = "⚠️ Something went wrong. Please try again.";
-    }
+    });
 });
+
+function extractVideoId(url) {
+    let match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    return match ? match[1] : null;
+}
