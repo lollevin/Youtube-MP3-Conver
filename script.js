@@ -5,10 +5,31 @@ document.addEventListener("DOMContentLoaded", function () {
     const statusDiv = document.getElementById("status");
     const progressBar = document.getElementById("progressBar");
     const spinner = document.getElementById("loadingSpinner");
+    const historyList = document.getElementById("historyList");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const previewContainer = document.getElementById("previewContainer");
+    const videoPreview = document.getElementById("videoPreview");
+
+    // 🔹 Load history on page load
+    loadHistory();
+
+    // 🔹 Update preview when user inputs a video URL
+    videoInput.addEventListener("input", function () {
+        const videoUrl = videoInput.value.trim();
+        const videoId = extractVideoId(videoUrl);
+
+        if (videoId) {
+            previewContainer.style.display = "block";
+            videoPreview.src = `https://www.youtube.com/embed/${videoId}`;
+        } else {
+            previewContainer.style.display = "none";
+            videoPreview.src = "";
+        }
+    });
 
     downloadBtn.addEventListener("click", async function () {
         const videoUrl = videoInput.value.trim();
-        const selectedQuality = qualitySelect.value; // Get selected quality
+        const selectedQuality = qualitySelect.value;
 
         if (!videoUrl.includes("youtube.com") && !videoUrl.includes("youtu.be")) {
             statusDiv.innerText = "⚠️ Please enter a valid YouTube URL!";
@@ -20,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
             statusDiv.innerText = "🔍 Fetching video details...";
             progressBar.style.width = "20%";
 
-            // 🔹 Send POST request to EzMP3 API with selected quality
             const apiUrl = "https://youtube-to-mp337.p.rapidapi.com/api/converttomp3";
             const options = {
                 method: "POST",
@@ -43,14 +63,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const result = await response.json();
             const downloadUrl = result.url;
+            const videoTitle = result.title || "Unknown Title";
 
             progressBar.style.width = "80%";
             statusDiv.innerText = "⬇️ Downloading MP3...";
 
+            // 🔹 Save download to history with title
+            saveToHistory(videoTitle, videoUrl, downloadUrl);
+
             // 🔹 Trigger download
             const a = document.createElement("a");
             a.href = downloadUrl;
-            a.download = "ConvertedAudio.mp3";
+            a.download = `${videoTitle}.mp3`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -66,4 +90,36 @@ document.addEventListener("DOMContentLoaded", function () {
             spinner.style.display = "none";
         }
     });
+
+    // 🔹 Save download to history
+    function saveToHistory(title, videoUrl, downloadUrl) {
+        let history = JSON.parse(localStorage.getItem("downloadHistory")) || [];
+        history.push({ title, videoUrl, downloadUrl });
+        localStorage.setItem("downloadHistory", JSON.stringify(history));
+        loadHistory();
+    }
+
+    // 🔹 Load history into the list
+    function loadHistory() {
+        historyList.innerHTML = "";
+        const history = JSON.parse(localStorage.getItem("downloadHistory")) || [];
+
+        history.forEach((entry) => {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `<a href="${entry.downloadUrl}" target="_blank">🔊 ${entry.title}</a>`;
+            historyList.appendChild(listItem);
+        });
+    }
+
+    // 🔹 Clear history
+    clearHistoryBtn.addEventListener("click", function () {
+        localStorage.removeItem("downloadHistory");
+        loadHistory();
+    });
+
+    // 🔹 Extract Video ID from YouTube URL
+    function extractVideoId(url) {
+        const match = url.match(/(?:youtube\.com.*[?&]v=|youtu\.be\/)([^"&?\/\s]{11})/);
+        return match ? match[1] : null;
+    }
 });

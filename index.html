@@ -12,6 +12,11 @@
 
     <input id="videoUrl" class="input-field" type="text" placeholder="Paste YouTube URL here" style="width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
 
+    <!-- 🔹 Video Preview Section -->
+    <div id="previewContainer" style="display: none; margin-top: 16px;">
+      <iframe id="videoPreview" width="100%" height="200" style="border-radius: 8px;" frameborder="0" allowfullscreen></iframe>
+    </div>
+
     <label for="qualitySelect" style="display: block; font-weight: bold; margin-top: 10px;">Choose Quality:</label>
     <select id="qualitySelect" class="input-field" style="width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
       <option value="64">64kbps</option>
@@ -30,6 +35,12 @@
     </div>
 
     <div id="loadingSpinner" style="display: none; margin: 16px auto; border: 4px solid #e5e7eb; border-top: 4px solid #6366F1; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite;"></div>
+
+    <!-- 🔹 History Section -->
+    <h2 style="font-size: 18px; font-weight: bold; margin-top: 20px;">Download History</h2>
+    <ul id="historyList" style="list-style: none; padding: 0;"></ul>
+    <button id="clearHistoryBtn" style="padding: 8px; font-weight: bold; border-radius: 8px; border: none; background: red; color: white; margin-top: 12px;">Clear History</button>
+
   </div>
 
   <div class="wave"></div>
